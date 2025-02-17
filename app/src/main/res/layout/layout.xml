@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+<!--    TCP 服务器连接状态-->
+    <TextView
+        android:id="@+id/connectionStatusTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="20dp"
+        android:text="Server Status: Waiting for connection..."
+        android:textSize="16sp" />
+
+<!--    TCP 服务器 IP 地址-->
+    <TextView
+        android:id="@+id/serverInfoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:textSize="16sp" />
+
+<!--    TCP 客户端消息显示-->
+    <TextView
+        android:id="@+id/messageTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp" />
+
+<!--    图传显示区域-->
+    <ImageView
+        android:id="@+id/video_view"
+        android:layout_width="354dp"
+        android:layout_height="263dp"
+        android:background="#F6F3F3"/>
+</LinearLayout>
