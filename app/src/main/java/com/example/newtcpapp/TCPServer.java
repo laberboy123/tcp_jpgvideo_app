@@ -29,6 +29,9 @@ public class TCPServer {
         void onServerStarted(String ip, int port);
         void onClientConnected(String clientIp);
         void onMessageReceived(String message);
+
+        void onJpgDataReceived(byte[] jpgData);
+
         void onError(String errorMessage);
     }
 
@@ -52,18 +55,12 @@ public class TCPServer {
                     handler.post(() -> callback.onClientConnected(clientIp));
                     Log.d(TAG, "客户端连接: " + clientIp);
 
-                    InputStream inputStream = clientSocket.getInputStream();
-                    StringBuilder messageBuilder = new StringBuilder();
-                    int byteRead;
-                    while ((byteRead = inputStream.read()) != -1) {
-                        if ((byte) byteRead == END_FLAG) {
-                            final String message = messageBuilder.toString();
-                            handler.post(() -> callback.onMessageReceived(message));
-                            Log.d(TAG, "Received message: " + message);
-                            messageBuilder.setLength(0); // 清空 StringBuilder 以便接收下一条消息
-                        } else {
-                            messageBuilder.append((char) byteRead);
-                        }
+                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                    String inputLine;
+                    while ((inputLine = in.readLine()) != null) {
+                        final String message = inputLine;
+                        handler.post(() -> callback.onMessageReceived(message));
+                        Log.d(TAG, "Received message: " + message);
                     }
                     clientSocket.close();
                 }
@@ -73,19 +70,6 @@ public class TCPServer {
                 Log.e(TAG, errorMessage);
             }
         });
-    }
-
-    public void stopServer() {
-        try {
-            if (serverSocket != null && !serverSocket.isClosed()) {
-                serverSocket.close();
-            }
-            executorService.shutdownNow();
-        } catch (IOException e) {
-            final String errorMessage = "Error stopping server: " + e.getMessage();
-            handler.post(() -> callback.onError(errorMessage));
-            Log.e(TAG, errorMessage);
-        }
     }
 
     private String getLocalIpAddress() {
@@ -107,5 +91,18 @@ public class TCPServer {
             Log.e(TAG, "Error getting IP address: " + e.getMessage());
         }
         return null;
+    }
+
+    public void stopServer() {
+        try {
+            if (serverSocket != null && !serverSocket.isClosed()) {
+                serverSocket.close();
+            }
+            executorService.shutdownNow();
+        } catch (IOException e) {
+            final String errorMessage = "Error stopping server: " + e.getMessage();
+            handler.post(() -> callback.onError(errorMessage));
+            Log.e(TAG, errorMessage);
+        }
     }
 }

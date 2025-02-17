@@ -68,6 +68,11 @@ public class MainActivity extends AppCompatActivity implements TCPServer.Callbac
     }
 
     @Override
+    public void onJpgDataReceived(byte[] jpgData) {
+
+    }
+
+    @Override
     public void onError(String errorMessage) {
         connectionStatusTextView.setText("服务器错误: " + errorMessage);
     }
