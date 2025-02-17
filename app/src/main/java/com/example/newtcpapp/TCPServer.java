@@ -50,19 +50,23 @@ public class TCPServer {
                 Log.d(TAG, "服务器启动: " + ip + ":" + PORT);
 
                 while (true) {
-                    Socket clientSocket = serverSocket.accept();
-                    String clientIp = clientSocket.getInetAddress().getHostAddress();
-                    handler.post(() -> callback.onClientConnected(clientIp));
-                    Log.d(TAG, "客户端连接: " + clientIp);
+                    try (Socket clientSocket = serverSocket.accept();
+                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()))) {
+                        String clientIp = clientSocket.getInetAddress().getHostAddress();
+                        handler.post(() -> callback.onClientConnected(clientIp));
+                        Log.d(TAG, "客户端连接: " + clientIp);
 
-                    BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    String inputLine;
-                    while ((inputLine = in.readLine()) != null) {
-                        final String message = inputLine;
-                        handler.post(() -> callback.onMessageReceived(message));
-                        Log.d(TAG, "Received message: " + message);
+                        String inputLine;
+                        while ((inputLine = in.readLine()) != null) {
+                            final String message = inputLine;
+                            handler.post(() -> callback.onMessageReceived(message));
+                            Log.d(TAG, "Received message: " + message);
+                        }
+                    } catch (IOException e) {
+                        final String errorMessage = "Client connection error: " + e.getMessage();
+                        handler.post(() -> callback.onError(errorMessage));
+                        Log.e(TAG, errorMessage);
                     }
-                    clientSocket.close();
                 }
             } catch (IOException e) {
                 final String errorMessage = "Server error: " + e.getMessage();
